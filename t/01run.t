@@ -4,7 +4,7 @@ use Test::More tests => 30;
 use Test::URI;
 use File::Temp qw/tempdir/;
 use File::Find;
-use Image::Info;
+use Image::Info qw/image_info dim/;
 use strict;
 
 my $query = 'Cannabis sativa indica';
@@ -214,7 +214,6 @@ sub get_max_result_count {
 
 sub check_all_images {
     my ($callback, $dir) = @_;
-    print STDERR "checking dir $dir\n";
 
     eval {
 	find($callback, $dir);
@@ -254,7 +253,6 @@ sub get_name_callback {
 
     return sub {
 	return unless /\.(png|gif|jpe?g)$/i;
-	print STDERR "checking file $File::Find::name\n";
 
 	die unless $check->($_);
     };
