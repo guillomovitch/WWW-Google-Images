@@ -121,10 +121,16 @@ sub search {
 	do {
 	    push(@images, $self->_extract_images($arg{limit} ? $arg{limit} - @images : 0));
 	    last if $arg{limit} && @images >= $arg{limit};
-	} while ($self->{_agent}->follow_link(text => ++$page));
+	} while ($self->_next_page(++$page));
     }
 
     return WWW::Google::Images::SearchResult->new($self->{_agent}, @images);
+}
+
+sub _next_page {
+    my ($self, $page) = @_;
+
+    return $self->{_agent}->follow_link(text => $page)
 }
 
 sub _extract_images {
