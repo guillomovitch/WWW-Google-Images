@@ -5,6 +5,8 @@ use Test::URI;
 use File::Temp qw/tempdir/;
 use strict;
 
+my $query = 'Cannabis sativa indica';
+
 BEGIN {
     print "The test needs internet connection. Be sure to get connected, or you will get several error messages.\n";
 
@@ -14,7 +16,7 @@ BEGIN {
 my $agent = WWW::Google::Images->new();
 isa_ok($agent, 'WWW::Google::Images', 'constructor returns a WWW::Google::Images object');
 
-my $result = $agent->search('Cannabis sativa indica', limit => 1);
+my $result = $agent->search($query, limit => 1);
 isa_ok($result, 'WWW::Google::Images::SearchResult', 'search returns a WWW::Google::Images::SearchResult object');
 
 my $image = $result->next();
@@ -54,30 +56,32 @@ print $image;
 
 my $count;
 
-my $test_agent = WWW::Mechanize->new();
-$test_agent->get('http://images.google.com/');
-$test_agent->submit_form(
-     form_number => 1,
-     fields      => {
-	 q => 'Cannabis sativa indica'
-     }
-);
-my @links = $test_agent->find_all_links( text_regex => qr/\d+/);
-$test_agent->get($links[-1]->url());
-$test_agent->content() =~ m/similar to the (\d+) already displayed/;
-my $test_count = $1;
-
 $count = 0;
-$result = $agent->search('Cannabis sativa indica');
+$result = $agent->search($query);
 while ($image = $result->next()) { $count++ }; 
 is($count, 10, 'default search limit');
 
 $count = 0;
-$result = $agent->search('Cannabis sativa indica', limit => 37);
+$result = $agent->search($query, limit => 37);
 while ($image = $result->next()) { $count++ }; 
 is($count, 37, 'search limit > 20 works');
 
 $count = 0;
-$result = $agent->search('Cannabis sativa indica', limit => 0);
+$result = $agent->search($query, limit => 0);
 while ($image = $result->next()) { $count++ }; 
-is($count, $test_count, 'no search limit');
+is($count, get_max_result_count(), 'no search limit');
+
+sub get_max_result_count {
+    my $test_agent = WWW::Mechanize->new();
+    $test_agent->get('http://images.google.com/');
+    $test_agent->submit_form(
+	 form_number => 1,
+	 fields      => {
+	     q => 'Cannabis sativa indica'
+	 }
+    );
+    my @links = $test_agent->find_all_links( text_regex => qr/\d+/);
+    $test_agent->get($links[-1]->url());
+    $test_agent->content() =~ m/similar to the (\d+) already displayed/;
+    return $1;
+}
