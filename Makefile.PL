@@ -10,6 +10,7 @@ WriteMakefile(
     PREREQ_PM    => {
 	'WWW::Mechanize' => 0.5,
 	'Getopt::Long'   => 0,
-	'Test::URI'      => 0
+	'Test::URI'      => 0,
+	'HTML::Parser'   => 0
     }
 );
