@@ -73,11 +73,13 @@ sub new {
     my $a = WWW::Mechanize->new(onwarn => undef, onerror => undef);
     $a->proxy(['http'], $arg{proxy}) if $arg{proxy};
 
-    bless {
+    my $self = bless {
 	_server => ($arg{server} || 'http://images.google.com/'),
 	_proxy => $arg{proxy},
 	_agent => $a,
     }, $class;
+
+    return $self;
 }
 
 =head2 $agent->search(I<$query>, I<%args>);
