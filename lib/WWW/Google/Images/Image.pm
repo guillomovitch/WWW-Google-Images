@@ -126,7 +126,6 @@ sub _save_as {
     my ($self, $file, $url) = @_;
 
     # make sure the path exist
-    print STDERR "checking $file\n";
     my $dir = dirname($file);
     mkpath($dir) unless -d $dir;
 
