@@ -8,6 +8,9 @@ WWW::Google::Images::SearchResult - Search result object for WWW::Google::Images
 =cut
 
 use WWW::Google::Images::Image;
+use File::Basename;
+use File::Path;
+use Carp;
 use strict;
 
 =head1 Constructor
@@ -50,47 +53,79 @@ sub next {
 
 =head1 Other methods
 
-=head2 $result->save_all_contents(I<%args>)
+=head2 $result->save_all(I<%args>)
 
-Save all the image files from result, by calling $image->save_content(I<%args>)
-for each one. If optional parameter file or base is given, an index number is
+Save all the image files and web pages from result.
+
+Optional parameters:
+
+=over
+
+=item content => 1
+
+Content is saved by calling $image->save_content() for each result.
+
+=item context => 1
+
+Context is saved by calling $image->save_context() for each result.
+
+=item summary => 1
+
+A summary is created, that links saved files to original URLs.
+
+=item file => I<$file>
+
+Passed to $image->save_content() and $image->save_context().
+
+=item dir => I<$directory>
+
+Passed to $image->save_content() and $image->save_context().
+
+=item base => I<$base>
+
+Passed to $image->save_content() and $image->save_context().
+
+=back
+
+Additionaly, if optional parameter file or base is given, an index number is
 automatically appended.
 
 =cut
 
-sub save_all_contents {
+sub save_all {
     my ($self, %args) = @_;
 
-    my $count;
-    while (my $image = $self->next()) {
-	$count++;
-	$image->save_content(
-	    dir  => $args{dir} ? $args{dir} : undef,
-	    file => $args{file} ? $args{file} . $count : undef,
-	    base => $args{base} ? $args{base} . $count : undef,
-	);
+    if ($args{summary}) {
+	my $dir = $args{dir} ? $args{dir} : '.';
+	mkpath($dir) unless -d $dir;
+	open(SUMMARY, ">$dir/summary.txt") or carp "unable to open file $dir/summary.txt for writing: $!\n";
     }
-}
-
-=head2 $result->save_all_contexts(I<%args>)
-
-Save all the web pagesfrom result, by calling $image->save_context(I<%args>)
-for each one. If optional parameter file or base is given, an index number is
-automatically appended.
-
-=cut
-
-sub save_all_contexts {
-    my ($self, %args) = @_;
 
     my $count;
     while (my $image = $self->next()) {
 	$count++;
-	$image->save_context(
+	my ($content, $context);
+
+	$content = $image->save_content(
 	    dir  => $args{dir} ? $args{dir} : undef,
 	    file => $args{file} ? $args{file} . $count : undef,
 	    base => $args{base} ? $args{base} . $count : undef,
-	);
+	) if $args{content};
+
+	$context = $image->save_context(
+	    dir  => $args{dir} ? $args{dir} : undef,
+	    file => $args{file} ? $args{file} . $count : undef,
+	    base => $args{base} ? $args{base} . $count : undef,
+	) if $args{context};
+
+	if ($args{summary}) {
+	    print SUMMARY basename($content) . "\t" . $image->content_url() . "\n" if $args{content};
+	    print SUMMARY basename($context) . "\t" . $image->context_url() . "\n" if $args{context};
+	}
+    }
+
+    if ($args{summary}) {
+	close(SUMMARY);
     }
 }
 
