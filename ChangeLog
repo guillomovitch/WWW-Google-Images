@@ -1,3 +1,8 @@
+2005-02-07 0.6.1
+	
+	* added summary option for global save operations
+	* add HTML::Parser dependency
+
 2005-01-31 0.6.0
 	
 	* added filtering options for queries, based on file name, file size,
