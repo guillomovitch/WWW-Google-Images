@@ -1,3 +1,8 @@
+2004-11-03 0.5.1
+	
+	* fixed documentation for saving methods
+	(Ryan Gerry <gerryster@gmail.com>)
+
 2004-07-23 0.5
 	
 	* fixed image URL retrieval
