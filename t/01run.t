@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 # $Id$
-use Test::More tests => 20;
+use Test::More tests => 26;
 use Test::URI;
 use File::Temp qw/tempdir/;
+use File::Find;
+use Image::Info;
 use strict;
 
 my $query = 'Cannabis sativa indica';
@@ -35,7 +37,7 @@ SKIP: {
     uri_scheme_ok($context_url, 'http');
     like($context_url, qr/\.(htm|html)$/i, 'context URL is an web page URL');
 
-    my $dir = tempdir( CLEANUP => 1 );
+    my $dir = tempdir( CLEANUP => 0 );
 
     my $content_file;
     $content_file = $image->save_content(dir => $dir, file => 'content');
@@ -73,6 +75,72 @@ SKIP: {
     $result = $agent->search($query, limit => 0);
     while ($image = $result->next()) { $count++ }; 
     is($count, get_max_result_count(), 'no search limit');
+
+    my $min_size_dir = $dir . '/min_size';
+    $result = $agent->search($query, min_size => 100);
+    $result->save_all_contents(dir => $min_size_dir);
+    ok(
+	check_all_images(
+	    get_size_callback(sub { return $_[0] >= 100 * 1024 }),
+	    $min_size_dir
+	),
+	'minimum size works'
+    );
+
+    my $max_size_dir = $dir . '/max_size';
+    $result = $agent->search($query, max_size => 100);
+    $result->save_all_contents(dir => $max_size_dir);
+    ok(
+	check_all_images(
+	    get_size_callback(sub { return $_[0] <= 100 * 1024 }),
+	    $max_size_dir
+	),
+	'maximum size works'
+    );
+
+    my $min_width_dir = $dir . '/min_width';
+    $result = $agent->search($query, min_width => 1000);
+    $result->save_all_contents(dir => $min_width_dir);
+    ok(
+	check_all_images(
+	    get_dimension_callback(sub { return $_[0] >= 1000 }),
+	    $min_width_dir
+	),
+	'minimum width works'
+    );
+
+    my $max_width_dir = $dir . '/max_width';
+    $result = $agent->search($query, max_width => 1000);
+    $result->save_all_contents(dir => $max_width_dir);
+    ok(
+	check_all_images(
+	    get_dimension_callback(sub { return $_[0] <= 1000 }),
+	    $max_width_dir
+	),
+	'maximum width works'
+    );
+
+    my $min_height_dir = $dir . '/min_height';
+    $result = $agent->search($query, min_height => 1000);
+    $result->save_all_contents(dir => $min_height_dir);
+    ok(
+	check_all_images(
+	    get_dimension_callback(sub { return $_[1] >= 1000 }),
+	    $min_height_dir
+	),
+	'minimum height works'
+    );
+
+    my $max_height_dir = $dir . '/max_height';
+    $result = $agent->search($query, max_height => 1000);
+    $result->save_all_contents(dir => $max_height_dir);
+    ok(
+	check_all_images(
+	    get_dimension_callback(sub { return $_[1] <= 1000 }),
+	    $max_height_dir
+	),
+	'maximum height works'
+    );
 }
 
 sub get_max_result_count {
@@ -88,6 +156,42 @@ sub get_max_result_count {
     $test_agent->get($links[-1]->url());
     $test_agent->content() =~ m/similar to the (\d+) already displayed/;
     return $1;
+}
+
+sub check_all_images {
+    my ($callback, $dir) = @_;
+
+    eval {
+	find($callback, $dir);
+    };
+    return ! $@;
+}
+
+sub get_dimension_callback {
+    my ($check) = @_;
+
+    return sub {
+	return unless /\.(png|gif|jpg|jpeg)$/i;
+
+	my $info = image_info($File::Find::name);
+
+	if ($info->{error}) {
+	    print STDERR "Can't parse image info: $info->{error}\n";
+	    return;
+	}
+
+	die unless $check->(dim($info));
+    };
+}
+
+sub get_size_callback {
+    my ($check) = @_;
+
+    return sub {
+	return unless /\.(png|gif|jpg|jpeg)$/i;
+
+	die unless $check->(-s $File::Find::name);
+    };
 }
 
 # shamelessly stolen from HTTP-Proxy test suite
