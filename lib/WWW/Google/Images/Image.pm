@@ -53,26 +53,62 @@ sub context_url {
 
 =head1 Other methods
 
-=head2 $image->save_content_as(I<$filename>)
+=head2 $image->save_content(I<%args>)
 
-Save the image file as I<$filename>.
+Save the image file. The default is to keep its original file name, but this behavior can be altered using optional parameters.
+
+Optional parameters:
+
+=over
+
+=item file => I<$file>
+
+Use $file as file name.
+
+=item base => I<$base>
+
+Use $base with lowercase original extension added as file name.
+
+=back
 
 =cut
 
-sub save_content_as {
-    my ($self, $file) = @_;
+sub save_content {
+    my ($self, %args) = @_;
+
+    my $file = $self->_get_file($self->{_content}, %args);
     $self->_save_as($file, $self->{_content});
+
+    return $file;
 }
 
-=head2 $image->save_context_as(I<$filename>)
+=head2 $image->save_context(I<%args>)
 
-Save the web page as I<$filename>.
+Save the web page. The default is to keep its original file name, but this behavior can be altered using optional parameters.
+
+Optional parameters:
+
+=over
+
+=item file => I<$file>
+
+Use $file as file name.
+
+=item base => I<$base>
+
+Use $base with lowercase original extension added as file name.
+
+=back
 
 =cut
 
-sub save_context_as {
-    my ($self, $file) = @_;
+sub save_context {
+    my ($self, %args) = @_;
+
+    my $file = $self->_get_file($self->{_context}, %args);
     $self->_save_as($file, $self->{_context});
+
+    return $file;
 }
 
 sub _save_as {
@@ -81,9 +117,35 @@ sub _save_as {
     $self->{_agent}->back();
 }
 
+sub _get_file {
+    my ($self, $url, %args) = @_;
+
+    my $file;
+    if ($args{file}) {
+	$file = $args{file};
+    } elsif ($args{base}) {
+	$url =~ /(\.\w+)$/;
+	$file = $args{base} . lc($1);
+    } else {
+	$url =~ /([^\/]+)$/;
+	$file = $1;
+    }
+
+    my $dir;
+    if ($args{dir}) {
+	$dir = $args{dir};
+    } else {
+	$dir = '.';
+    }
+
+    return $dir . '/' . $file;
+}
+
 =head1 AUTHOR
 
-copyright 2004 Guillaume Rousse <grousse@cpan.org>
+Guillaume Rousse <grousse@cpan.org>
+
+Copyright 2004 INRIA.
 
 Released under the GPL.
 
