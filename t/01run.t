@@ -7,69 +7,73 @@ use strict;
 
 my $query = 'Cannabis sativa indica';
 
-BEGIN {
-    print "The test needs internet connection. Be sure to get connected, or you will get several error messages.\n";
 
+BEGIN {
     use_ok 'WWW::Google::Images';
 }
 
-my $agent = WWW::Google::Images->new();
-isa_ok($agent, 'WWW::Google::Images', 'constructor returns a WWW::Google::Images object');
+# skip all other tests if the network is not available
+SKIP: {
+    skip "Web does not seem to work", 19 unless web_ok();
 
-my $result = $agent->search($query, limit => 1);
-isa_ok($result, 'WWW::Google::Images::SearchResult', 'search returns a WWW::Google::Images::SearchResult object');
+    my $agent = WWW::Google::Images->new();
+    isa_ok($agent, 'WWW::Google::Images', 'constructor returns a WWW::Google::Images object');
 
-my $image = $result->next();
-isa_ok($image, 'WWW::Google::Images::Image', 'iteration returns a WWW::Google::Images::Image object');
+    my $result = $agent->search($query, limit => 1);
+    isa_ok($result, 'WWW::Google::Images::SearchResult', 'search returns a WWW::Google::Images::SearchResult object');
 
-my $content_url = $image->content_url();
-ok($content_url, "content URL exist");
-uri_scheme_ok($content_url, 'http');
-like($content_url, qr/\.(png|gif|jpg|jpeg)$/i, 'content URL is an image file URL');
+    my $image = $result->next();
+    isa_ok($image, 'WWW::Google::Images::Image', 'iteration returns a WWW::Google::Images::Image object');
 
-my $context_url = $image->context_url();
-ok($context_url, "context URL exist");
-uri_scheme_ok($context_url, 'http');
-like($context_url, qr/\.(htm|html)$/i, 'context URL is an web page URL');
+    my $content_url = $image->content_url();
+    ok($content_url, "content URL exist");
+    uri_scheme_ok($content_url, 'http');
+    like($content_url, qr/\.(png|gif|jpg|jpeg)$/i, 'content URL is an image file URL');
 
-my $dir = tempdir( CLEANUP => 1 );
+    my $context_url = $image->context_url();
+    ok($context_url, "context URL exist");
+    uri_scheme_ok($context_url, 'http');
+    like($context_url, qr/\.(htm|html)$/i, 'context URL is an web page URL');
 
-my $content_file;
-$content_file = $image->save_content(dir => $dir, file => 'content');
-ok(-f $content_file, 'content file is saved correctly with imposed file name');
-$content_file = $image->save_content(dir => $dir, base => 'content');
-ok(-f $content_file, 'content file is saved correctly with imposed base name');
-$content_file = $image->save_content(dir => $dir);
-ok(-f $content_file, 'content file is saved correctly with original name');
+    my $dir = tempdir( CLEANUP => 1 );
 
-my $context_file;
-$context_file = $image->save_context(dir => $dir, file => 'context');
-ok(-f $context_file, 'context file is saved correctly with imposed file name');
-$context_file = $image->save_context(dir => $dir, base => 'context');
-ok(-f $context_file, 'context file is saved correctly with imposed base name');
-$context_file = $image->save_context(dir => $dir);
-ok(-f $context_file, 'context file is saved correctly with original name');
+    my $content_file;
+    $content_file = $image->save_content(dir => $dir, file => 'content');
+    ok(-f $content_file, 'content file is saved correctly with imposed file name');
+    $content_file = $image->save_content(dir => $dir, base => 'content');
+    ok(-f $content_file, 'content file is saved correctly with imposed base name');
+    $content_file = $image->save_content(dir => $dir);
+    ok(-f $content_file, 'content file is saved correctly with original name');
 
-$image = $result->next();
-ok(! defined $image, 'search limit < 20 works');
-print $image;
+    my $context_file;
+    $context_file = $image->save_context(dir => $dir, file => 'context');
+    ok(-f $context_file, 'context file is saved correctly with imposed file name');
+    $context_file = $image->save_context(dir => $dir, base => 'context');
+    ok(-f $context_file, 'context file is saved correctly with imposed base name');
+    $context_file = $image->save_context(dir => $dir);
+    ok(-f $context_file, 'context file is saved correctly with original name');
 
-my $count;
+    $image = $result->next();
+    ok(! defined $image, 'search limit < 20 works');
+    print $image;
 
-$count = 0;
-$result = $agent->search($query);
-while ($image = $result->next()) { $count++ }; 
-is($count, 10, 'default search limit');
+    my $count;
 
-$count = 0;
-$result = $agent->search($query, limit => 37);
-while ($image = $result->next()) { $count++ }; 
-is($count, 37, 'search limit > 20 works');
+    $count = 0;
+    $result = $agent->search($query);
+    while ($image = $result->next()) { $count++ }; 
+    is($count, 10, 'default search limit');
 
-$count = 0;
-$result = $agent->search($query, limit => 0);
-while ($image = $result->next()) { $count++ }; 
-is($count, get_max_result_count(), 'no search limit');
+    $count = 0;
+    $result = $agent->search($query, limit => 37);
+    while ($image = $result->next()) { $count++ }; 
+    is($count, 37, 'search limit > 20 works');
+
+    $count = 0;
+    $result = $agent->search($query, limit => 0);
+    while ($image = $result->next()) { $count++ }; 
+    is($count, get_max_result_count(), 'no search limit');
+}
 
 sub get_max_result_count {
     my $test_agent = WWW::Mechanize->new();
@@ -84,4 +88,12 @@ sub get_max_result_count {
     $test_agent->get($links[-1]->url());
     $test_agent->content() =~ m/similar to the (\d+) already displayed/;
     return $1;
+}
+
+# shamelessly stolen from HTTP-Proxy test suite
+sub web_ok {
+    my $ua = LWP::UserAgent->new( env_proxy => 1, timeout => 30 );
+    my $res = $ua->request(
+        HTTP::Request->new( GET => shift||'http://www.google.com/intl/en/' ) );
+    return $res->is_success;
 }
