@@ -7,7 +7,7 @@ WWW::Google::Images - Google Images Agent
 
 =head1 VERSION
 
-Version 0.6.0
+Version 0.6.1
 
 =head1 DESCRIPTION
 
@@ -39,7 +39,7 @@ use WWW::Mechanize;
 use WWW::Google::Images::SearchResult;
 use HTML::Parser;
 use strict;
-our $VERSION = '0.6.0';
+our $VERSION = '0.6.1';
 
 =head1 Constructor
 
@@ -216,7 +216,7 @@ sub _extract_images {
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2004, INRIA.
+Copyright (C) 2004-2005, INRIA.
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

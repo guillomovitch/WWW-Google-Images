@@ -160,7 +160,7 @@ sub _get_file {
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2004, INRIA.
+Copyright (C) 2004-2005, INRIA.
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
