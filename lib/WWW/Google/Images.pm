@@ -130,7 +130,7 @@ sub search {
 
 =head1 AUTHOR
 
-copyright 2004 Guillaume Rousse <Guillaume.Rousse@inria.fr>
+copyright 2004 Guillaume Rousse <grousse@cpan.org>
 
 Released under the GPL.
 
