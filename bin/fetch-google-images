@@ -6,18 +6,26 @@ use WWW::Google::Images;
 use strict;
 
 my %opts;
-my $base = 'image';
-my $limit = 100;
+my $base = '';
+my %options;
 GetOptions(
-    "limit=i" => \$limit,
-    "base=s"  => \$base
+    'base=s'       => \$base,
+    'limit=i'      => \$options{limit},
+    'regex=s'      => \$options{regex},
+    'iregex=s'     => \$options{iregex},
+    'min_size=s'   => \$options{min_size},
+    'max_size=s'   => \$options{max_size},
+    'min_width=s'  => \$options{min_width},
+    'max_width=s'  => \$options{max_width},
+    'min_height=s' => \$options{min_height},
+    'max_height=s' => \$options{max_height},
 );
 
 my $agent = WWW::Google::Images->new();
 
 while (my $item = <>) {
     chomp $item;
-    my $result = $agent->search($item, limit => $limit);
+    my $result = $agent->search($item, %options);
     if ($result) {
 	mkdir($item);
 	$result->save_all_contents(dir => $item, base => $base);
