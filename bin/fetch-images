@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+# $Id$
+
+use Getopt::Long;
+use WWW::Google::Images;
+use strict;
+
+my %opts;
+my $base = 'image';
+my $limit = 100;
+GetOptions(
+    "limit=i" => \$limit,
+    "base=s"  => \$base
+);
+
+my $agent = WWW::Google::Images->new();
+
+while (my $item = <>) {
+    chomp $item;
+    my $result = $agent->search($item, limit => $limit);
+    if ($result) {
+	mkdir($item);
+	$result->save_all_contents(dir => $item, base => $base);
+    }
+}
