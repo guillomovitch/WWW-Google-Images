@@ -1,4 +1,4 @@
-# $id$
+# $Id$
 package WWW::Google::Images;
 
 =head1 NAME
@@ -94,7 +94,6 @@ limit the maximum number of result returned to $limit.
 
 =back
 
-
 =cut
 
 sub search {
@@ -102,7 +101,7 @@ sub search {
 
     warn "No query given, aborting" and return unless $query;
 
-    $arg{limit} ||= 10;
+    $arg{limit} = 10 unless defined $arg{limit};
 
     $self->{_agent}->get($self->{_server});
 
@@ -113,24 +112,42 @@ sub search {
 	 }
     );
 
-    my @links = $self->{_agent}->find_all_links( url_regex => qr/imgurl/ );
+    my @images;
+    my $page = 1;
+
+    LOOP: {
+	do {
+	    push(@images, $self->_extract_images($arg{limit} ? $arg{limit} - @images : 0));
+	    last if $arg{limit} && @images >= $arg{limit};
+	} while ($self->{_agent}->follow_link(text => ++$page));
+    }
+
+    return WWW::Google::Images::SearchResult->new($self->{_agent}, @images);
+}
+
+sub _extract_images {
+    my ($self, $limit) = @_;
 
     my @images;
 
+    my @links = $self->{_agent}->find_all_links( url_regex => qr/imgurl/ );
+
     foreach my $link (@links) {
-	last if @images >= $arg{limit};
+	last if $limit && @images >= $limit;
 	$link->url() =~ /imgurl=([^&]+)&imgrefurl=([^&]+)/;
 	my $content = "http://" . $1;
 	my $context = $2;
 	push(@images, { content => $content, context => $context});
     }
 
-    return WWW::Google::Images::SearchResult->new($self->{_agent}, @images);
+    return @images;
 }
 
 =head1 AUTHOR
 
-copyright 2004 Guillaume Rousse <grousse@cpan.org>
+Guillaume Rousse <grousse@cpan.org>
+
+Copyright 2004 INRIA.
 
 Released under the GPL.
 
