@@ -7,7 +7,7 @@ WWW::Google::Images - Google Images Agent
 
 =head1 VERSION
 
-Version 0.4
+Version 0.5
 
 =head1 DESCRIPTION
 
@@ -38,7 +38,7 @@ heavily inspired from L<WWW::Google::Groups>.
 use WWW::Mechanize;
 use WWW::Google::Images::SearchResult;
 use strict;
-our $VERSION = '0.4';
+our $VERSION = '0.5';
 
 =head1 Constructor
 
@@ -143,7 +143,7 @@ sub _extract_images {
     foreach my $link (@links) {
 	last if $limit && @images >= $limit;
 	$link->url() =~ /imgurl=([^&]+)&imgrefurl=([^&]+)/;
-	my $content = "http://" . $1;
+	my $content = $1;
 	my $context = $2;
 	push(@images, { content => $content, context => $context});
     }
