@@ -94,13 +94,15 @@ sub save_all_contexts {
     }
 }
 
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2004, INRIA.
+
+This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
 =head1 AUTHOR
 
 Guillaume Rousse <grousse@cpan.org>
-
-Copyright 2004 INRIA.
-
-Released under the GPL.
 
 =cut
 
