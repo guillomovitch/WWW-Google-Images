@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # $Id$
-use Test::More tests => 26;
+use Test::More tests => 30;
 use Test::URI;
 use File::Temp qw/tempdir/;
 use File::Find;
@@ -30,7 +30,7 @@ SKIP: {
     my $content_url = $image->content_url();
     ok($content_url, "content URL exist");
     uri_scheme_ok($content_url, 'http');
-    like($content_url, qr/\.(png|gif|jpg|jpeg)$/i, 'content URL is an image file URL');
+    like($content_url, qr/\.(png|gif|jpe?g)$/i, 'content URL is an image file URL');
 
     my $context_url = $image->context_url();
     ok($context_url, "context URL exist");
@@ -77,6 +77,7 @@ SKIP: {
     is($count, get_max_result_count(), 'no search limit');
 
     my $min_size_dir = $dir . '/min_size';
+    mkdir $min_size_dir;
     $result = $agent->search($query, min_size => 100);
     $result->save_all_contents(dir => $min_size_dir);
     ok(
@@ -88,6 +89,7 @@ SKIP: {
     );
 
     my $max_size_dir = $dir . '/max_size';
+    mkdir $max_size_dir;
     $result = $agent->search($query, max_size => 100);
     $result->save_all_contents(dir => $max_size_dir);
     ok(
@@ -99,6 +101,7 @@ SKIP: {
     );
 
     my $min_width_dir = $dir . '/min_width';
+    mkdir $min_width_dir;
     $result = $agent->search($query, min_width => 1000);
     $result->save_all_contents(dir => $min_width_dir);
     ok(
@@ -110,6 +113,7 @@ SKIP: {
     );
 
     my $max_width_dir = $dir . '/max_width';
+    mkdir $max_width_dir;
     $result = $agent->search($query, max_width => 1000);
     $result->save_all_contents(dir => $max_width_dir);
     ok(
@@ -121,6 +125,7 @@ SKIP: {
     );
 
     my $min_height_dir = $dir . '/min_height';
+    mkdir $min_height_dir;
     $result = $agent->search($query, min_height => 1000);
     $result->save_all_contents(dir => $min_height_dir);
     ok(
@@ -132,6 +137,7 @@ SKIP: {
     );
 
     my $max_height_dir = $dir . '/max_height';
+    mkdir $max_height_dir;
     $result = $agent->search($query, max_height => 1000);
     $result->save_all_contents(dir => $max_height_dir);
     ok(
@@ -140,6 +146,54 @@ SKIP: {
 	    $max_height_dir
 	),
 	'maximum height works'
+    );
+
+    my $jpg_regex_dir = $dir . '/jpg_regex';
+    mkdir $jpg_regex_dir;
+    $result = $agent->search($query, regex => '\.jpe?g$');
+    $result->save_all_contents(dir => $jpg_regex_dir);
+    ok(
+	check_all_images(
+	    get_name_callback(sub { return $_[0] =~ /\.jpe?g$/ }),
+	    $jpg_regex_dir
+	),
+	'case-sensitive jpg regex works'
+    );
+
+    my $jpg_iregex_dir = $dir . '/jpg_iregex';
+    mkdir $jpg_iregex_dir;
+    $result = $agent->search($query, iregex => '\.jpe?g$');
+    $result->save_all_contents(dir => $jpg_iregex_dir);
+    ok(
+	check_all_images(
+	    get_name_callback(sub { return $_[0] =~ /\.jpe?g$/i }),
+	    $jpg_iregex_dir
+	),
+	'case-insensitive jpg regex works'
+    );
+
+    my $gif_regex_dir = $dir . '/gif_regex';
+    mkdir $gif_regex_dir;
+    $result = $agent->search($query, regex => '\.gif$');
+    $result->save_all_contents(dir => $gif_regex_dir);
+    ok(
+	check_all_images(
+	    get_name_callback(sub { return $_[0] =~ /\.gif$/ }),
+	    $gif_regex_dir
+	),
+	'case-sensitive gif regex works'
+    );
+
+    my $gif_iregex_dir = $dir . '/gif_iregex';
+    mkdir $gif_iregex_dir;
+    $result = $agent->search($query, iregex => '\.gif$');
+    $result->save_all_contents(dir => $gif_iregex_dir);
+    ok(
+	check_all_images(
+	    get_name_callback(sub { return $_[0] =~ /\.gif$/i }),
+	    $gif_iregex_dir
+	),
+	'case-insensitive gif regex works'
     );
 }
 
@@ -160,6 +214,7 @@ sub get_max_result_count {
 
 sub check_all_images {
     my ($callback, $dir) = @_;
+    print STDERR "checking dir $dir\n";
 
     eval {
 	find($callback, $dir);
@@ -171,7 +226,7 @@ sub get_dimension_callback {
     my ($check) = @_;
 
     return sub {
-	return unless /\.(png|gif|jpg|jpeg)$/i;
+	return unless /\.(png|gif|jpe?g)$/i;
 
 	my $info = image_info($File::Find::name);
 
@@ -188,9 +243,20 @@ sub get_size_callback {
     my ($check) = @_;
 
     return sub {
-	return unless /\.(png|gif|jpg|jpeg)$/i;
+	return unless /\.(png|gif|jpe?g)$/i;
 
 	die unless $check->(-s $File::Find::name);
+    };
+}
+
+sub get_name_callback {
+    my ($check) = @_;
+
+    return sub {
+	return unless /\.(png|gif|jpe?g)$/i;
+	print STDERR "checking file $File::Find::name\n";
+
+	die unless $check->($_);
     };
 }
 

@@ -119,6 +119,16 @@ limit the maximum width of result returned to $height pixels.
 
 limit the maximum size of result returned to $size ko.
 
+=item regex => I<$regex>
+
+limit the result returned to those whose filename matches case-sensitive
+$regex regular expression.
+
+=item iregex => I<$regex>
+
+limit the result returned to those whose filename matches case-insensitive
+$regex regular expression.
+
 =back
 
 =cut
@@ -195,6 +205,8 @@ sub _extract_images {
 	$links[$i]->url() =~ /imgurl=([^&]+)&imgrefurl=([^&]+)/;
 	my $content = $1;
 	my $context = $2;
+	next if $arg{regex} && $content !~ /$arg{regex}/;
+	next if $arg{iregex} && $content !~ /$arg{iregex}/i;
 	push(@images, { content => $content, context => $context});
 	last if $limit && @images == $limit;
     }
