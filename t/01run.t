@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # $Id$
-use Test::More tests => 30;
+use Test::More tests => 31;
 use Test::URI;
 use File::Temp qw/tempdir/;
 use File::Find;
@@ -21,7 +21,7 @@ SKIP: {
     my $agent = WWW::Google::Images->new();
     isa_ok($agent, 'WWW::Google::Images', 'constructor returns a WWW::Google::Images object');
 
-    my $result = $agent->search($query, limit => 1);
+    my $result = $agent->search($query, limit => 2);
     isa_ok($result, 'WWW::Google::Images::SearchResult', 'search returns a WWW::Google::Images::SearchResult object');
 
     my $image = $result->next();
@@ -37,7 +37,7 @@ SKIP: {
     uri_scheme_ok($context_url, 'http');
     like($context_url, qr/\.(htm|html)$/i, 'context URL is an web page URL');
 
-    my $dir = tempdir( CLEANUP => 0 );
+    my $dir = tempdir( CLEANUP => 1 );
 
     my $content_file;
     $content_file = $image->save_content(dir => $dir, file => 'content');
@@ -54,6 +54,10 @@ SKIP: {
     ok(-f $context_file, 'context file is saved correctly with imposed base name');
     $context_file = $image->save_context(dir => $dir);
     ok(-f $context_file, 'context file is saved correctly with original name');
+
+    my $subdir = $dir . '/subdir';
+    $result->save_all_contents(dir => $subdir);
+    ok(-d $subdir, 'path is created on the fly');
 
     $image = $result->next();
     ok(! defined $image, 'search limit < 20 works');
@@ -77,7 +81,6 @@ SKIP: {
     is($count, get_max_result_count(), 'no search limit');
 
     my $min_size_dir = $dir . '/min_size';
-    mkdir $min_size_dir;
     $result = $agent->search($query, min_size => 100);
     $result->save_all_contents(dir => $min_size_dir);
     ok(
@@ -89,7 +92,6 @@ SKIP: {
     );
 
     my $max_size_dir = $dir . '/max_size';
-    mkdir $max_size_dir;
     $result = $agent->search($query, max_size => 100);
     $result->save_all_contents(dir => $max_size_dir);
     ok(
@@ -101,7 +103,6 @@ SKIP: {
     );
 
     my $min_width_dir = $dir . '/min_width';
-    mkdir $min_width_dir;
     $result = $agent->search($query, min_width => 1000);
     $result->save_all_contents(dir => $min_width_dir);
     ok(
@@ -113,7 +114,6 @@ SKIP: {
     );
 
     my $max_width_dir = $dir . '/max_width';
-    mkdir $max_width_dir;
     $result = $agent->search($query, max_width => 1000);
     $result->save_all_contents(dir => $max_width_dir);
     ok(
@@ -125,7 +125,6 @@ SKIP: {
     );
 
     my $min_height_dir = $dir . '/min_height';
-    mkdir $min_height_dir;
     $result = $agent->search($query, min_height => 1000);
     $result->save_all_contents(dir => $min_height_dir);
     ok(
@@ -137,7 +136,6 @@ SKIP: {
     );
 
     my $max_height_dir = $dir . '/max_height';
-    mkdir $max_height_dir;
     $result = $agent->search($query, max_height => 1000);
     $result->save_all_contents(dir => $max_height_dir);
     ok(
@@ -149,7 +147,6 @@ SKIP: {
     );
 
     my $jpg_regex_dir = $dir . '/jpg_regex';
-    mkdir $jpg_regex_dir;
     $result = $agent->search($query, regex => '\.jpe?g$');
     $result->save_all_contents(dir => $jpg_regex_dir);
     ok(
@@ -161,7 +158,6 @@ SKIP: {
     );
 
     my $jpg_iregex_dir = $dir . '/jpg_iregex';
-    mkdir $jpg_iregex_dir;
     $result = $agent->search($query, iregex => '\.jpe?g$');
     $result->save_all_contents(dir => $jpg_iregex_dir);
     ok(
@@ -173,7 +169,6 @@ SKIP: {
     );
 
     my $gif_regex_dir = $dir . '/gif_regex';
-    mkdir $gif_regex_dir;
     $result = $agent->search($query, regex => '\.gif$');
     $result->save_all_contents(dir => $gif_regex_dir);
     ok(
@@ -185,7 +180,6 @@ SKIP: {
     );
 
     my $gif_iregex_dir = $dir . '/gif_iregex';
-    mkdir $gif_iregex_dir;
     $result = $agent->search($query, iregex => '\.gif$');
     $result->save_all_contents(dir => $gif_iregex_dir);
     ok(

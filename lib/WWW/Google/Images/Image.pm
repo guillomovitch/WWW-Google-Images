@@ -15,6 +15,9 @@ Creates and returns a new C<WWW::Google::Images::Image> object.
 
 =cut
 
+use File::Basename;
+use File::Path;
+
 sub new {
     my ($class, $agent, $content, $context) = @_;
 
@@ -121,6 +124,13 @@ sub save_context {
 
 sub _save_as {
     my ($self, $file, $url) = @_;
+
+    # make sure the path exist
+    print STDERR "checking $file\n";
+    my $dir = dirname($file);
+    mkpath($dir) unless -d $dir;
+
+    # save file
     $self->{_agent}->get($url, ":content_file" => $file );
     $self->{_agent}->back();
 }
