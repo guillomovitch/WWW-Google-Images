@@ -1,0 +1,11 @@
+2004-04-02 0.2
+
+	* misc codes change to sync with WWW::Indigo
+	* renamed script from fetch-images to fetch-google-images to avoid
+	name clash with WWW::Indigo
+	* more coherent version number
+	* added ChangeLog
+
+2004-04-01 0.01
+
+	* first release
