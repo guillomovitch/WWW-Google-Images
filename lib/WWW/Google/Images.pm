@@ -7,7 +7,7 @@ WWW::Google::Images - Google Images Agent
 
 =head1 VERSION
 
-Version 0.5
+Version 0.5.1
 
 =head1 DESCRIPTION
 
