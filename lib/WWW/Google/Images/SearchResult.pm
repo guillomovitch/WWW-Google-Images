@@ -48,9 +48,57 @@ sub next {
     );
 }
 
+=head1 Other methods
+
+=head2 $result->save_all_contents(I<%args>)
+
+Save all the image files from result, by calling $image->save_content(I<%args>)
+for each one. If optional parameter file or base is given, an index number is
+automatically appended.
+
+=cut
+
+sub save_all_contents {
+    my ($self, %args) = @_;
+
+    my $count;
+    while (my $image = $self->next()) {
+	$count++;
+	$image->save_content(
+	    dir  => $args{dir} ? $args{dir} : undef,
+	    file => $args{file} ? $args{file} . $count : undef,
+	    base => $args{base} ? $args{base} . $count : undef,
+	);
+    }
+}
+
+=head2 $result->save_all_contexts(I<%args>)
+
+Save all the web pagesfrom result, by calling $image->save_context(I<%args>)
+for each one. If optional parameter file or base is given, an index number is
+automatically appended.
+
+=cut
+
+sub save_all_contexts {
+    my ($self, %args) = @_;
+
+    my $count;
+    while (my $image = $self->next()) {
+	$count++;
+	$image->save_context(
+	    dir  => $args{dir} ? $args{dir} : undef,
+	    file => $args{file} ? $args{file} . $count : undef,
+	    base => $args{base} ? $args{base} . $count : undef,
+	);
+    }
+}
+
 =head1 AUTHOR
 
-copyright 2004 Guillaume Rousse <grousse@cpan.org>
+Guillaume Rousse <grousse@cpan.org>
+
+Copyright 2004 INRIA.
 
 Released under the GPL.
 
