@@ -7,27 +7,30 @@ use strict;
 
 my %opts;
 my $base = '';
-my %options;
+my (%search_options, %save_options);
 GetOptions(
-    'base=s'       => \$base,
-    'limit=i'      => \$options{limit},
-    'regex=s'      => \$options{regex},
-    'iregex=s'     => \$options{iregex},
-    'min_size=s'   => \$options{min_size},
-    'max_size=s'   => \$options{max_size},
-    'min_width=s'  => \$options{min_width},
-    'max_width=s'  => \$options{max_width},
-    'min_height=s' => \$options{min_height},
-    'max_height=s' => \$options{max_height},
+    'base=s'       => \$save_options{base},
+    'content'      => \$save_options{content},
+    'context'      => \$save_options{context},
+    'summary'      => \$save_options{summary},
+    'limit=i'      => \$search_options{limit},
+    'regex=s'      => \$search_options{regex},
+    'iregex=s'     => \$search_options{iregex},
+    'min_size=s'   => \$search_options{min_size},
+    'max_size=s'   => \$search_options{max_size},
+    'min_width=s'  => \$search_options{min_width},
+    'max_width=s'  => \$search_options{max_width},
+    'min_height=s' => \$search_options{min_height},
+    'max_height=s' => \$search_options{max_height},
 );
 
 my $agent = WWW::Google::Images->new();
 
 while (my $item = <>) {
     chomp $item;
-    my $result = $agent->search($item, %options);
+    my $result = $agent->search($item, %search_options);
     if ($result) {
 	mkdir($item);
-	$result->save_all_contents(dir => $item, base => $base);
+	$result->save_all(dir => $item, %save_options);
     }
 }
