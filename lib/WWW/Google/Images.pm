@@ -7,7 +7,7 @@ WWW::Google::Images - Google Images Agent
 
 =head1 VERSION
 
-Version 0.3
+Version 0.4
 
 =head1 DESCRIPTION
 
@@ -29,8 +29,8 @@ heavily inspired from L<WWW::Google::Groups>.
 	$count++;
 	print $image->content_url();
 	print $image->context_url();
-	print $image->save_content_as('image' . $count);
-	print $image->save_context_as('page' . $count);
+	print $image->save_content(base => 'image' . $count);
+	print $image->save_context(base => 'page' . $count);
     }
 
 =cut
@@ -38,7 +38,7 @@ heavily inspired from L<WWW::Google::Groups>.
 use WWW::Mechanize;
 use WWW::Google::Images::SearchResult;
 use strict;
-our $VERSION = '0.3';
+our $VERSION = '0.4';
 
 =head1 Constructor
 
@@ -75,8 +75,8 @@ sub new {
 
     my $self = bless {
 	_server => ($arg{server} || 'http://images.google.com/'),
-	_proxy => $arg{proxy},
-	_agent => $a,
+	_proxy  => $arg{proxy},
+	_agent  => $a,
     }, $class;
 
     return $self;
