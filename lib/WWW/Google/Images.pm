@@ -38,7 +38,7 @@ heavily inspired from L<WWW::Google::Groups>.
 use WWW::Mechanize;
 use WWW::Google::Images::SearchResult;
 use strict;
-our $VERSION = '0.5';
+our $VERSION = '0.5.1';
 
 =head1 Constructor
 
