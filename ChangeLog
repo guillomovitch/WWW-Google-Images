@@ -1,3 +1,7 @@
+2004-07-23 0.5
+	
+	* fixed image URL retrieval
+
 2004-04-08 0.4
 
 	* added Test::URI dependency
