@@ -1,7 +1,8 @@
+#!/usr/bin/perl
 # $Id$
-use Test::More tests => 13;
+use Test::More tests => 20;
 use Test::URI;
-use File::Temp ();
+use File::Temp qw/tempdir/;
 use strict;
 
 BEGIN {
@@ -13,7 +14,7 @@ BEGIN {
 my $agent = WWW::Google::Images->new();
 isa_ok($agent, 'WWW::Google::Images', 'constructor returns a WWW::Google::Images object');
 
-my $result = $agent->search('Cannabis sativa', limit => 1);
+my $result = $agent->search('Cannabis sativa indica', limit => 1);
 isa_ok($result, 'WWW::Google::Images::SearchResult', 'search returns a WWW::Google::Images::SearchResult object');
 
 my $image = $result->next();
@@ -29,14 +30,54 @@ ok($context_url, "context URL exist");
 uri_scheme_ok($context_url, 'http');
 like($context_url, qr/\.(htm|html)$/i, 'context URL is an web page URL');
 
-my $content_file = File::Temp->new()->filename();
-$image->save_content_as($content_file);
-ok(-f $content_file, 'content file is saved correctly');
+my $dir = tempdir( CLEANUP => 1 );
 
-my $context_file = File::Temp->new()->filename();
-$image->save_context_as($context_file);
-ok(-f $context_file, 'context file is saved correctly');
+my $content_file;
+$content_file = $image->save_content(dir => $dir, file => 'content');
+ok(-f $content_file, 'content file is saved correctly with imposed file name');
+$content_file = $image->save_content(dir => $dir, base => 'content');
+ok(-f $content_file, 'content file is saved correctly with imposed base name');
+$content_file = $image->save_content(dir => $dir);
+ok(-f $content_file, 'content file is saved correctly with original name');
+
+my $context_file;
+$context_file = $image->save_context(dir => $dir, file => 'context');
+ok(-f $context_file, 'context file is saved correctly with imposed file name');
+$context_file = $image->save_context(dir => $dir, base => 'context');
+ok(-f $context_file, 'context file is saved correctly with imposed base name');
+$context_file = $image->save_context(dir => $dir);
+ok(-f $context_file, 'context file is saved correctly with original name');
 
 $image = $result->next();
-ok(! defined $image, 'search return a limited number of results');
+ok(! defined $image, 'search limit < 20 works');
 print $image;
+
+my $count;
+
+my $test_agent = WWW::Mechanize->new();
+$test_agent->get('http://images.google.com/');
+$test_agent->submit_form(
+     form_number => 1,
+     fields      => {
+	 q => 'Cannabis sativa indica'
+     }
+);
+my @links = $test_agent->find_all_links( text_regex => qr/\d+/);
+$test_agent->get($links[-1]->url());
+$test_agent->content() =~ m/similar to the (\d+) already displayed/;
+my $test_count = $1;
+
+$count = 0;
+$result = $agent->search('Cannabis sativa indica');
+while ($image = $result->next()) { $count++ }; 
+is($count, 10, 'default search limit');
+
+$count = 0;
+$result = $agent->search('Cannabis sativa indica', limit => 37);
+while ($image = $result->next()) { $count++ }; 
+is($count, 37, 'search limit > 20 works');
+
+$count = 0;
+$result = $agent->search('Cannabis sativa indica', limit => 0);
+while ($image = $result->next()) { $count++ }; 
+is($count, $test_count, 'no search limit');
