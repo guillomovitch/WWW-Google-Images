@@ -65,6 +65,10 @@ Optional parameters:
 
 Use $file as file name.
 
+=item dir => I<$directory>
+
+Use $directory as a directory path to save the file.  If only 'file' is specified, it will be saved in a path relative to the current working directory.
+
 =item base => I<$base>
 
 Use $base with lowercase original extension added as file name.
@@ -93,6 +97,10 @@ Optional parameters:
 =item file => I<$file>
 
 Use $file as file name.
+
+=item dir => I<$directory>
+
+Use $directory as a directory path to save the file.  If only 'file' is specified, it will be saved in a path relative to the current working directory.
 
 =item base => I<$base>
 
