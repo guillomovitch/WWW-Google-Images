@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # $Id$
-use Test::More tests => 31;
+use Test::More tests => 35;
 use Test::URI;
 use File::Temp qw/tempdir/;
 use File::Find;
@@ -21,7 +21,7 @@ SKIP: {
     my $agent = WWW::Google::Images->new();
     isa_ok($agent, 'WWW::Google::Images', 'constructor returns a WWW::Google::Images object');
 
-    my $result = $agent->search($query, limit => 2);
+    my $result = $agent->search($query, limit => 1);
     isa_ok($result, 'WWW::Google::Images::SearchResult', 'search returns a WWW::Google::Images::SearchResult object');
 
     my $image = $result->next();
@@ -55,13 +55,29 @@ SKIP: {
     $context_file = $image->save_context(dir => $dir);
     ok(-f $context_file, 'context file is saved correctly with original name');
 
-    my $subdir = $dir . '/subdir';
-    $result->save_all_contents(dir => $subdir);
-    ok(-d $subdir, 'path is created on the fly');
-
     $image = $result->next();
     ok(! defined $image, 'search limit < 20 works');
     print $image;
+
+    my $result = $agent->search($query, limit => 1);
+
+    my $subdir = $dir . '/subdir';
+    $result->save_all(content => 1, summary => 1, dir => $subdir, base => 'image');
+    ok(-d $subdir, 'path is created on the fly');
+    ok(-f "$subdir/summary.txt", 'summary is created');
+
+    my ($lines, @files, @urls);
+    open(SUMMARY, "$subdir/summary.txt");
+    while (<SUMMARY>) {
+	chomp;
+	my ($file, $url) = split(/\t/, $_);
+	ok(-f "$subdir/$file", 'file exists');
+	uri_scheme_ok($url, 'http');
+	$lines++;
+    }
+    close(SUMMARY);
+
+    is($lines, 1, 'summary has the correct lines number');
 
     my $count;
 
@@ -82,7 +98,7 @@ SKIP: {
 
     my $min_size_dir = $dir . '/min_size';
     $result = $agent->search($query, min_size => 100);
-    $result->save_all_contents(dir => $min_size_dir);
+    $result->save_all(content => 1, dir => $min_size_dir);
     ok(
 	check_all_images(
 	    get_size_callback(sub { return $_[0] >= 100 * 1024 }),
@@ -93,7 +109,7 @@ SKIP: {
 
     my $max_size_dir = $dir . '/max_size';
     $result = $agent->search($query, max_size => 100);
-    $result->save_all_contents(dir => $max_size_dir);
+    $result->save_all(content => 1, dir => $max_size_dir);
     ok(
 	check_all_images(
 	    get_size_callback(sub { return $_[0] <= 100 * 1024 }),
@@ -104,7 +120,7 @@ SKIP: {
 
     my $min_width_dir = $dir . '/min_width';
     $result = $agent->search($query, min_width => 1000);
-    $result->save_all_contents(dir => $min_width_dir);
+    $result->save_all(content => 1, dir => $min_width_dir);
     ok(
 	check_all_images(
 	    get_dimension_callback(sub { return $_[0] >= 1000 }),
@@ -115,7 +131,7 @@ SKIP: {
 
     my $max_width_dir = $dir . '/max_width';
     $result = $agent->search($query, max_width => 1000);
-    $result->save_all_contents(dir => $max_width_dir);
+    $result->save_all(content => 1, dir => $max_width_dir);
     ok(
 	check_all_images(
 	    get_dimension_callback(sub { return $_[0] <= 1000 }),
@@ -126,7 +142,7 @@ SKIP: {
 
     my $min_height_dir = $dir . '/min_height';
     $result = $agent->search($query, min_height => 1000);
-    $result->save_all_contents(dir => $min_height_dir);
+    $result->save_all(content => 1, dir => $min_height_dir);
     ok(
 	check_all_images(
 	    get_dimension_callback(sub { return $_[1] >= 1000 }),
@@ -137,7 +153,7 @@ SKIP: {
 
     my $max_height_dir = $dir . '/max_height';
     $result = $agent->search($query, max_height => 1000);
-    $result->save_all_contents(dir => $max_height_dir);
+    $result->save_all(content => 1, dir => $max_height_dir);
     ok(
 	check_all_images(
 	    get_dimension_callback(sub { return $_[1] <= 1000 }),
@@ -148,7 +164,7 @@ SKIP: {
 
     my $jpg_regex_dir = $dir . '/jpg_regex';
     $result = $agent->search($query, regex => '\.jpe?g$');
-    $result->save_all_contents(dir => $jpg_regex_dir);
+    $result->save_all(content => 1, dir => $jpg_regex_dir);
     ok(
 	check_all_images(
 	    get_name_callback(sub { return $_[0] =~ /\.jpe?g$/ }),
@@ -159,7 +175,7 @@ SKIP: {
 
     my $jpg_iregex_dir = $dir . '/jpg_iregex';
     $result = $agent->search($query, iregex => '\.jpe?g$');
-    $result->save_all_contents(dir => $jpg_iregex_dir);
+    $result->save_all(content => 1, dir => $jpg_iregex_dir);
     ok(
 	check_all_images(
 	    get_name_callback(sub { return $_[0] =~ /\.jpe?g$/i }),
@@ -170,7 +186,7 @@ SKIP: {
 
     my $gif_regex_dir = $dir . '/gif_regex';
     $result = $agent->search($query, regex => '\.gif$');
-    $result->save_all_contents(dir => $gif_regex_dir);
+    $result->save_all(content => 1, dir => $gif_regex_dir);
     ok(
 	check_all_images(
 	    get_name_callback(sub { return $_[0] =~ /\.gif$/ }),
@@ -181,7 +197,7 @@ SKIP: {
 
     my $gif_iregex_dir = $dir . '/gif_iregex';
     $result = $agent->search($query, iregex => '\.gif$');
-    $result->save_all_contents(dir => $gif_iregex_dir);
+    $result->save_all(content => 1, dir => $gif_iregex_dir);
     ok(
 	check_all_images(
 	    get_name_callback(sub { return $_[0] =~ /\.gif$/i }),
