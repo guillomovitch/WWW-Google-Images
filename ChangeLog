@@ -1,3 +1,8 @@
+2004-04-08 0.4
+
+	* added Test::URI dependency
+	* fixed synopsis
+
 2004-04-05 0.3
 
 	* fixed archive content
