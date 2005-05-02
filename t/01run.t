@@ -1,18 +1,15 @@
 #!/usr/bin/perl
 # $Id$
-use Test::More tests => 35;
+use Test::More tests => 34;
 use Test::URI;
 use File::Temp qw/tempdir/;
 use File::Find;
 use Image::Info qw/image_info dim/;
+use WWW::Google::Images;
 use strict;
 
 my $query = 'Cannabis sativa indica';
 
-
-BEGIN {
-    use_ok 'WWW::Google::Images';
-}
 
 # skip all other tests if the network is not available
 SKIP: {
@@ -59,7 +56,7 @@ SKIP: {
     ok(! defined $image, 'search limit < 20 works');
     print $image;
 
-    my $result = $agent->search($query, limit => 1);
+    $result = $agent->search($query, limit => 1);
 
     my $subdir = $dir . '/subdir';
     $result->save_all(content => 1, summary => 1, dir => $subdir, base => 'image');
