@@ -1,0 +1,13 @@
+CVS/.*
+^cover_db/
+^blib/
+\.bak$
+\.swp$
+\.tar$
+\.tgz$
+\.tar\.gz$
+\.SKIP$
+~$
+^pm_to_blib$
+^Makefile$
+^Makefile\.old$
