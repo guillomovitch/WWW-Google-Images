@@ -251,7 +251,9 @@ sub get_size_callback {
     return sub {
 	return unless /\.(png|gif|jpe?g)$/i;
 
-	die unless $check->(-s $File::Find::name);
+	my ($blksize, $blkcount) = (stat($File::Find::name))[11,12];
+
+	die unless $check->($blksize * $blkcount / 8);
     };
 }
 
