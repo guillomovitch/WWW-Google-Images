@@ -1,3 +1,9 @@
+2005-05-23 0.6.2
+	
+	* better test suite
+	* fix size test
+	* fix missing test dependency
+
 2005-02-07 0.6.1
 	
 	* added summary option for global save operations
