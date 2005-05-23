@@ -7,7 +7,7 @@ WWW::Google::Images - Google Images Agent
 
 =head1 VERSION
 
-Version 0.6.1
+Version 0.6.2
 
 =head1 DESCRIPTION
 
@@ -39,7 +39,7 @@ use WWW::Mechanize;
 use WWW::Google::Images::SearchResult;
 use HTML::Parser;
 use strict;
-our $VERSION = '0.6.1';
+our $VERSION = '0.6.2';
 
 =head1 Constructor
 
