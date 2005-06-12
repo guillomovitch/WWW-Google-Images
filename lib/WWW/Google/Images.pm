@@ -39,6 +39,7 @@ use WWW::Mechanize;
 use WWW::Google::Images::SearchResult;
 use HTML::Parser;
 use strict;
+use warnings;
 our $VERSION = '0.6.2';
 
 =head1 Constructor
@@ -64,7 +65,7 @@ use I<$proxy> as proxy on port I<$port>.
 =cut
 
 sub new {
-    my ($class, $query, %arg) = @_;
+    my ($class, %arg) = @_;
 
     foreach my $key (qw(server proxy)){
 	next unless $arg{$key};
