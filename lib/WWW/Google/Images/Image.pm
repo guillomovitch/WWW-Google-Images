@@ -22,9 +22,9 @@ sub new {
     my ($class, $agent, $content, $context) = @_;
 
     my $self = bless {
-	_agent   => $agent,
-	_content => $content,
-	_context => $context,
+        _agent   => $agent,
+        _content => $content,
+        _context => $context,
     }, $class;
 
     return $self;
@@ -139,20 +139,20 @@ sub _get_file {
 
     my $file;
     if ($args{file}) {
-	$file = $args{file};
+        $file = $args{file};
     } elsif ($args{base}) {
-	$url =~ /(\.\w+)$/;
-	$file = $args{base} . lc($1);
+        $url =~ /(\.\w+)$/;
+        $file = $args{base} . lc($1);
     } else {
-	$url =~ /([^\/]+)$/;
-	$file = $1;
+        $url =~ /([^\/]+)$/;
+        $file = $1;
     }
 
     my $dir;
     if ($args{dir}) {
-	$dir = $args{dir};
+        $dir = $args{dir};
     } else {
-	$dir = '.';
+        $dir = '.';
     }
 
     return $dir . '/' . $file;

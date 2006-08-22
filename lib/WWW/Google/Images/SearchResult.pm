@@ -25,8 +25,8 @@ sub new {
     my ($class, $agent, @urls) = @_;
 
     my $self = bless {
-	_agent => $agent,
-	_urls  => \@urls
+        _agent => $agent,
+        _urls  => \@urls
     }, $class;
 
     return $self;
@@ -45,9 +45,9 @@ sub next {
     my $url = shift @{$self->{_urls}};
     return unless $url;
     return WWW::Google::Images::Image->new(
-	$self->{_agent},
-	$url->{content},
-	$url->{context}
+        $self->{_agent},
+        $url->{content},
+        $url->{context}
     );
 }
 
@@ -96,36 +96,36 @@ sub save_all {
     my ($self, %args) = @_;
 
     if ($args{summary}) {
-	my $dir = $args{dir} ? $args{dir} : '.';
-	mkpath($dir) unless -d $dir;
-	open(SUMMARY, ">$dir/summary.txt") or carp "unable to open file $dir/summary.txt for writing: $!\n";
+        my $dir = $args{dir} ? $args{dir} : '.';
+        mkpath($dir) unless -d $dir;
+        open(SUMMARY, ">$dir/summary.txt") or carp "unable to open file $dir/summary.txt for writing: $!\n";
     }
 
     my $count;
     while (my $image = $self->next()) {
-	$count++;
-	my ($content, $context);
+        $count++;
+        my ($content, $context);
 
-	$content = $image->save_content(
-	    dir  => $args{dir} ? $args{dir} : undef,
-	    file => $args{file} ? $args{file} . $count : undef,
-	    base => $args{base} ? $args{base} . $count : undef,
-	) if $args{content};
+        $content = $image->save_content(
+            dir  => $args{dir} ? $args{dir} : undef,
+            file => $args{file} ? $args{file} . $count : undef,
+            base => $args{base} ? $args{base} . $count : undef,
+        ) if $args{content};
 
-	$context = $image->save_context(
-	    dir  => $args{dir} ? $args{dir} : undef,
-	    file => $args{file} ? $args{file} . $count : undef,
-	    base => $args{base} ? $args{base} . $count : undef,
-	) if $args{context};
+        $context = $image->save_context(
+            dir  => $args{dir} ? $args{dir} : undef,
+            file => $args{file} ? $args{file} . $count : undef,
+            base => $args{base} ? $args{base} . $count : undef,
+        ) if $args{context};
 
-	if ($args{summary}) {
-	    print SUMMARY basename($content) . "\t" . $image->content_url() . "\n" if $args{content};
-	    print SUMMARY basename($context) . "\t" . $image->context_url() . "\n" if $args{context};
-	}
+        if ($args{summary}) {
+            print SUMMARY basename($content) . "\t" . $image->content_url() . "\n" if $args{content};
+            print SUMMARY basename($context) . "\t" . $image->context_url() . "\n" if $args{context};
+        }
     }
 
     if ($args{summary}) {
-	close(SUMMARY);
+        close(SUMMARY);
     }
 }
 

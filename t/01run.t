@@ -10,7 +10,6 @@ use strict;
 
 my $query = 'Cannabis sativa indica';
 
-
 # skip all other tests if the network is not available
 SKIP: {
     skip "Web does not seem to work", 19 unless web_ok();
@@ -66,11 +65,11 @@ SKIP: {
     my ($lines, @files, @urls);
     open(SUMMARY, "$subdir/summary.txt");
     while (<SUMMARY>) {
-	chomp;
-	my ($file, $url) = split(/\t/, $_);
-	ok(-f "$subdir/$file", 'file exists');
-	uri_scheme_ok($url, 'http');
-	$lines++;
+        chomp;
+        my ($file, $url) = split(/\t/, $_);
+        ok(-f "$subdir/$file", 'file exists');
+        uri_scheme_ok($url, 'http');
+        $lines++;
     }
     close(SUMMARY);
 
@@ -97,110 +96,110 @@ SKIP: {
     $result = $agent->search($query, min_size => 100);
     $result->save_all(content => 1, dir => $min_size_dir);
     ok(
-	check_all_images(
-	    get_size_callback(sub { return $_[0] >= 100 * 1024 }),
-	    $min_size_dir
-	),
-	'minimum size works'
+        check_all_images(
+            get_size_callback(sub { return $_[0] >= 100 * 1024 }),
+            $min_size_dir
+        ),
+        'minimum size works'
     );
 
     my $max_size_dir = $dir . '/max_size';
     $result = $agent->search($query, max_size => 100);
     $result->save_all(content => 1, dir => $max_size_dir);
     ok(
-	check_all_images(
-	    get_size_callback(sub { return $_[0] <= 100 * 1024 }),
-	    $max_size_dir
-	),
-	'maximum size works'
+        check_all_images(
+            get_size_callback(sub { return $_[0] <= 100 * 1024 }),
+            $max_size_dir
+        ),
+        'maximum size works'
     );
 
     my $min_width_dir = $dir . '/min_width';
     $result = $agent->search($query, min_width => 1000);
     $result->save_all(content => 1, dir => $min_width_dir);
     ok(
-	check_all_images(
-	    get_dimension_callback(sub { return $_[0] >= 1000 }),
-	    $min_width_dir
-	),
-	'minimum width works'
+        check_all_images(
+            get_dimension_callback(sub { return $_[0] >= 1000 }),
+            $min_width_dir
+        ),
+        'minimum width works'
     );
 
     my $max_width_dir = $dir . '/max_width';
     $result = $agent->search($query, max_width => 1000);
     $result->save_all(content => 1, dir => $max_width_dir);
     ok(
-	check_all_images(
-	    get_dimension_callback(sub { return $_[0] <= 1000 }),
-	    $max_width_dir
-	),
-	'maximum width works'
+        check_all_images(
+            get_dimension_callback(sub { return $_[0] <= 1000 }),
+            $max_width_dir
+        ),
+        'maximum width works'
     );
 
     my $min_height_dir = $dir . '/min_height';
     $result = $agent->search($query, min_height => 1000);
     $result->save_all(content => 1, dir => $min_height_dir);
     ok(
-	check_all_images(
-	    get_dimension_callback(sub { return $_[1] >= 1000 }),
-	    $min_height_dir
-	),
-	'minimum height works'
+        check_all_images(
+            get_dimension_callback(sub { return $_[1] >= 1000 }),
+            $min_height_dir
+        ),
+        'minimum height works'
     );
 
     my $max_height_dir = $dir . '/max_height';
     $result = $agent->search($query, max_height => 1000);
     $result->save_all(content => 1, dir => $max_height_dir);
     ok(
-	check_all_images(
-	    get_dimension_callback(sub { return $_[1] <= 1000 }),
-	    $max_height_dir
-	),
-	'maximum height works'
+        check_all_images(
+            get_dimension_callback(sub { return $_[1] <= 1000 }),
+            $max_height_dir
+        ),
+        'maximum height works'
     );
 
     my $jpg_regex_dir = $dir . '/jpg_regex';
     $result = $agent->search($query, regex => '\.jpe?g$');
     $result->save_all(content => 1, dir => $jpg_regex_dir);
     ok(
-	check_all_images(
-	    get_name_callback(sub { return $_[0] =~ /\.jpe?g$/ }),
-	    $jpg_regex_dir
-	),
-	'case-sensitive jpg regex works'
+        check_all_images(
+            get_name_callback(sub { return $_[0] =~ /\.jpe?g$/ }),
+            $jpg_regex_dir
+        ),
+        'case-sensitive jpg regex works'
     );
 
     my $jpg_iregex_dir = $dir . '/jpg_iregex';
     $result = $agent->search($query, iregex => '\.jpe?g$');
     $result->save_all(content => 1, dir => $jpg_iregex_dir);
     ok(
-	check_all_images(
-	    get_name_callback(sub { return $_[0] =~ /\.jpe?g$/i }),
-	    $jpg_iregex_dir
-	),
-	'case-insensitive jpg regex works'
+        check_all_images(
+            get_name_callback(sub { return $_[0] =~ /\.jpe?g$/i }),
+            $jpg_iregex_dir
+        ),
+        'case-insensitive jpg regex works'
     );
 
     my $gif_regex_dir = $dir . '/gif_regex';
     $result = $agent->search($query, regex => '\.gif$');
     $result->save_all(content => 1, dir => $gif_regex_dir);
     ok(
-	check_all_images(
-	    get_name_callback(sub { return $_[0] =~ /\.gif$/ }),
-	    $gif_regex_dir
-	),
-	'case-sensitive gif regex works'
+        check_all_images(
+            get_name_callback(sub { return $_[0] =~ /\.gif$/ }),
+            $gif_regex_dir
+        ),
+        'case-sensitive gif regex works'
     );
 
     my $gif_iregex_dir = $dir . '/gif_iregex';
     $result = $agent->search($query, iregex => '\.gif$');
     $result->save_all(content => 1, dir => $gif_iregex_dir);
     ok(
-	check_all_images(
-	    get_name_callback(sub { return $_[0] =~ /\.gif$/i }),
-	    $gif_iregex_dir
-	),
-	'case-insensitive gif regex works'
+        check_all_images(
+            get_name_callback(sub { return $_[0] =~ /\.gif$/i }),
+            $gif_iregex_dir
+        ),
+        'case-insensitive gif regex works'
     );
 }
 
@@ -208,10 +207,10 @@ sub get_max_result_count {
     my $test_agent = WWW::Mechanize->new();
     $test_agent->get('http://images.google.com/');
     $test_agent->submit_form(
-	 form_number => 1,
-	 fields      => {
-	     q => 'Cannabis sativa indica'
-	 }
+        form_number => 1,
+        fields      => {
+            q => 'Cannabis sativa indica'
+        }
     );
     my @links = $test_agent->find_all_links( text_regex => qr/\d+/);
     $test_agent->get($links[-1]->url());
@@ -223,7 +222,7 @@ sub check_all_images {
     my ($callback, $dir) = @_;
 
     eval {
-	find($callback, $dir);
+        find($callback, $dir);
     };
     return ! $@;
 }
@@ -232,16 +231,16 @@ sub get_dimension_callback {
     my ($check) = @_;
 
     return sub {
-	return unless /\.(png|gif|jpe?g)$/i;
+        return unless /\.(png|gif|jpe?g)$/i;
 
-	my $info = image_info($File::Find::name);
+        my $info = image_info($File::Find::name);
 
-	if ($info->{error}) {
-	    print STDERR "Can't parse image info: $info->{error}\n";
-	    return;
-	}
+        if ($info->{error}) {
+            print STDERR "Can't parse image info: $info->{error}\n";
+            return;
+        }
 
-	die unless $check->(dim($info));
+        die unless $check->(dim($info));
     };
 }
 
@@ -249,11 +248,11 @@ sub get_size_callback {
     my ($check) = @_;
 
     return sub {
-	return unless /\.(png|gif|jpe?g)$/i;
+        return unless /\.(png|gif|jpe?g)$/i;
 
-	my ($blksize, $blkcount) = (stat($File::Find::name))[11,12];
+        my ($blksize, $blkcount) = (stat($File::Find::name))[11,12];
 
-	die unless $check->($blksize * $blkcount / 8);
+        die unless $check->($blksize * $blkcount / 8);
     };
 }
 
@@ -261,9 +260,9 @@ sub get_name_callback {
     my ($check) = @_;
 
     return sub {
-	return unless /\.(png|gif|jpe?g)$/i;
+        return unless /\.(png|gif|jpe?g)$/i;
 
-	die unless $check->($_);
+        die unless $check->($_);
     };
 }
 
@@ -271,6 +270,7 @@ sub get_name_callback {
 sub web_ok {
     my $ua = LWP::UserAgent->new( env_proxy => 1, timeout => 30 );
     my $res = $ua->request(
-        HTTP::Request->new( GET => shift||'http://www.google.com/intl/en/' ) );
+        HTTP::Request->new( GET => shift||'http://www.google.com/intl/en/' )
+    );
     return $res->is_success;
 }
