@@ -3,6 +3,7 @@
 use ExtUtils::MakeMaker;
 eval {
     require ExtUtils::MakeMaker::Coverage;
+    import ExtUtils::MakeMaker::Coverage;
 };
 
 WriteMakefile(
