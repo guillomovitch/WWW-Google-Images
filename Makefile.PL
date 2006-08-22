@@ -1,7 +1,9 @@
 # $Id$
 
 use ExtUtils::MakeMaker;
-use ExtUtils::MakeMaker::Coverage;
+eval {
+    require ExtUtils::MakeMaker::Coverage;
+};
 
 WriteMakefile(
     NAME          => 'WWW::Google::Images',
