@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # $Id$
-use Test::More tests => 34;
+use Test::More tests => 35;
 use Test::URI;
 use File::Temp qw/tempdir/;
 use File::Find;
@@ -155,6 +155,20 @@ SKIP: {
             $max_height_dir
         ),
         'maximum height works'
+    );
+
+    my $ratio_dir = $dir . '/ratio';
+    $result = $agent->search($query, ratio => 1, ratio_delta => 0.05);
+    $result->save_all(content => 1, dir => $ratio_dir);
+    ok(
+        check_all_images(
+            get_dimension_callback(sub {
+                my $ratio = $_[0] / $_[1];
+                return $ratio >= 0.95 && $ratio <= 1.05;
+            }),
+            $ratio_dir
+        ),
+        'ratio works'
     );
 
     my $jpg_regex_dir = $dir . '/jpg_regex';
