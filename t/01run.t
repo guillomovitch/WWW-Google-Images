@@ -53,7 +53,6 @@ SKIP: {
 
     $image = $result->next();
     ok(! defined $image, 'search limit < 20 works');
-    print $image;
 
     $result = $agent->search($query, limit => 1);
 
