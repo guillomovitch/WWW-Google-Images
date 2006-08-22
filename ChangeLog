@@ -1,3 +1,7 @@
+2006-08-22 0.6.3
+	* fix size extraction
+	* make ExtUtils::MakeMaker::Coverage use conditional
+
 2005-05-23 0.6.2
 	
 	* better test suite
