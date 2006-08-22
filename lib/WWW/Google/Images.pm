@@ -195,9 +195,17 @@ sub _extract_images {
         $arg{ratio}
     ) {
         my $parser = HTML::Parser->new();
+        my $space = "(?:\\s|&nbsp;)";
+        my $pattern = qr/
+            ^
+            (\d+) $space+ x $space+ (\d+) $space+ pixels
+            $space+ - $space+ (\d+)k
+            $space+ - $space+ \w+
+            $
+        /ox;
         my $callback = sub {
             my ($text) = @_;
-            if ($text =~ /^(\d+) x (\d+) pixels - (\d+)k/o) {
+            if ($text =~ $pattern) {
                 push(@data, { width => $1, height => $2, size => $3 });
             }
         };
