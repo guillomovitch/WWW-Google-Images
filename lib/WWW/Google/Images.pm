@@ -188,7 +188,7 @@ sub _extract_images {
         my $parser = HTML::Parser->new();
         my $callback = sub {
             my ($text) = @_;
-            if ($text =~ /^(\d+) x (\d+) pixels - (\d+)k$/) {
+            if ($text =~ /^(\d+) x (\d+) pixels - (\d+)k/o) {
                 push(@data, { width => $1, height => $2, size => $3 });
             }
         };
