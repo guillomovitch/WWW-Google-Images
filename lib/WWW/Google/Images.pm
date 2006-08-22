@@ -120,6 +120,14 @@ limit the maximum width of result returned to $height pixels.
 
 limit the maximum size of result returned to $size ko.
 
+=item ratio => I<$ratio>
+
+limit the width/height ratio of result returned to $ratio (+/- tolerance).
+
+=item ratio_delta => I<$ratio_delta>
+
+set the tolerance limit for the ratio limit to $ratio_delta (default: 1.0).
+
 =item regex => I<$regex>
 
 limit the result returned to those whose filename matches case-sensitive
@@ -183,7 +191,8 @@ sub _extract_images {
         $arg{min_width}  || 
         $arg{max_width}  ||
         $arg{min_height} ||
-        $arg{max_height}
+        $arg{max_height} ||
+        $arg{ratio}
     ) {
         my $parser = HTML::Parser->new();
         my $callback = sub {
@@ -196,6 +205,13 @@ sub _extract_images {
         $parser->parse($self->{_agent}->content());
     }
 
+    my ($upper, $lower);
+    if ($arg{ratio}) {
+        my $delta = $arg{ratio_delta} || 1.0;
+        $lower = $arg{ratio} - $delta;
+        $upper = $arg{ratio} + $delta;
+    }
+
     for my $i (0 .. $#links) {
         next if $arg{min_size} && $data[$i]->{size} < $arg{min_size};
         next if $arg{max_size} && $data[$i]->{size} > $arg{max_size};
@@ -203,6 +219,10 @@ sub _extract_images {
         next if $arg{max_width} && $data[$i]->{width} > $arg{max_width};
         next if $arg{min_height} && $data[$i]->{height} < $arg{min_height};
         next if $arg{max_height} && $data[$i]->{height} > $arg{max_height};
+        if ($arg{ratio}) {
+            my $ratio = $data[$i]->{width} / $data[$i]->{height};
+            next if $ratio < $lower || $ratio > $upper;
+        }
         $links[$i]->url() =~ /imgurl=([^&]+)&imgrefurl=([^&]+)/;
         my $content = $1;
         my $context = $2;
