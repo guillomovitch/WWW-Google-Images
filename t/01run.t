@@ -33,7 +33,7 @@ SKIP: {
     uri_scheme_ok($context_url, 'http');
     like($context_url, qr/\.(htm|html|php)$/i, 'context URL is an web page URL');
 
-    my $dir = tempdir( CLEANUP => 1 );
+    my $dir = tempdir(CLEANUP => $ENV{TEST_DEBUG} ? 0 : 1);
 
     my $content_file;
     $content_file = $image->save_content(dir => $dir, file => 'content');
