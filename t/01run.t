@@ -31,7 +31,7 @@ SKIP: {
     my $context_url = $image->context_url();
     ok($context_url, "context URL exist");
     uri_scheme_ok($context_url, 'http');
-    like($context_url, qr/\.(htm|html)$/i, 'context URL is an web page URL');
+    like($context_url, qr/\.(htm|html|php)$/i, 'context URL is an web page URL');
 
     my $dir = tempdir( CLEANUP => 1 );
 
