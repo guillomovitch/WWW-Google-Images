@@ -40,7 +40,7 @@ use WWW::Google::Images::SearchResult;
 use HTML::Parser;
 use strict;
 use warnings;
-our $VERSION = '0.6.4';
+our $VERSION = '0.6.5';
 
 =head1 Constructor
 
