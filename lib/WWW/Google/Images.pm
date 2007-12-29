@@ -195,12 +195,11 @@ sub _extract_images {
         $arg{ratio}
     ) {
         my $parser = HTML::Parser->new();
-        my $space = "(?:\\s|&nbsp;)";
         my $pattern = qr/
             ^
-            (\d+) $space+ x $space+ (\d+) $space+ pixels
-            $space+ - $space+ (\d+)k
-            $space+ - $space+ \w+
+            (\d+) \s x \s (\d+)
+            \s - \s (\d+)k
+            (?:&nbsp; - &nbsp; \w*)?
             $
         /ox;
         my $callback = sub {
