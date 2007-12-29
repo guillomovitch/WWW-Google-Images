@@ -1,3 +1,8 @@
+2007-12-29 0.6.5
+
+	* fix size extraction again
+	* fix size test
+
 2006-08-22 0.6.4
 
 	* add ratio filtering (Robert Wenner <robert.wenner@gmail.com>)
