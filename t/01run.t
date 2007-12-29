@@ -225,8 +225,12 @@ sub get_max_result_count {
             q => 'Cannabis sativa indica'
         }
     );
-    my @links = $test_agent->find_all_links( text_regex => qr/\d+/);
-    $test_agent->get($links[-1]->url());
+    # follow all 'next' links until unavailable
+    while (my $next = $test_agent->find_link(text => 'Next')) {;
+        print $next->url() . "\n";
+        $test_agent->get($next->url());
+    }
+    # extract number from the page
     $test_agent->content() =~ m/similar to the (\d+) already displayed/;
     return $1;
 }
