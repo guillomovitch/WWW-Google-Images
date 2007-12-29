@@ -227,7 +227,6 @@ sub get_max_result_count {
     );
     # follow all 'next' links until unavailable
     while (my $next = $test_agent->find_link(text => 'Next')) {;
-        print $next->url() . "\n";
         $test_agent->get($next->url());
     }
     # extract number from the page
